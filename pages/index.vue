@@ -1,50 +1,72 @@
 <template>
   <div class="app">
     <main>
-      <div>
-        <input type="text" />
-      </div>
+      <SearchInput
+        v-model="inputText"
+        @search="filterItemsBySearchText"
+      ></SearchInput>
       <ul>
         <li
-          v-for="product in products"
-          :key="product.id"
-          @click="moveToDetailPage(product.id)"
+          v-for="item in items"
+          :key="item.id"
+          class="item flex"
+          @click="routeToDetailPage(item.id)"
         >
-          <img
-            class="product-image"
-            :src="product.imageUrl"
-            :alt="product.name"
-          />
-          <p>
-            {{ product.name }}
-          </p>
-          <span>
-            {{ product.price }}
-          </span>
+          <img class="product-image" :src="item.imageUrl" alt="" />
+          <p>{{ item.name }}</p>
+          <span>{{ item.price }}</span>
         </li>
       </ul>
+      <div class="cart-wrapper">
+        <button class="btn" @click="routeToCartPage">장바구니 바로가기</button>
+      </div>
     </main>
   </div>
 </template>
 
 <script>
-import axios from 'axios'
+// import axios from 'axios'
+import SearchInput from '@/components/SearchInput.vue'
+import { fetchProducts, fetchProductsByKeyword } from '@/api/index'
+// import { debounce } from 'lodash'
+
 export default {
+  components: { SearchInput },
+
   async asyncData() {
-    const resp = await axios.get('http://localhost:3000/products')
-    const products = resp.data.map((item) => {
-      return {
+    try {
+      const { data } = await fetchProducts()
+      const items = data.map((item) => ({
         ...item,
         imageUrl: `${item.imageUrl}?random=${Math.random()}`,
-      }
-    })
-
-    return { products }
+      }))
+      return { items }
+    } catch (error) {
+      const items = []
+      return { items }
+    }
   },
+
+  data() {
+    return {
+      inputText: '',
+    }
+  },
+
   methods: {
-    moveToDetailPage(id) {
+    async filterItemsBySearchText() {
+      const { data } = await fetchProductsByKeyword(this.inputText)
+      this.items = data.map((item) => ({
+        ...item,
+        imageUrl: `${item.imageUrl}?random=${Math.random()}`,
+      }))
+    },
+    routeToDetailPage(id) {
       console.log(id)
-      this.$router.push(`detail/${id}`)
+      this.$router.push(`/product/${id}`)
+    },
+    routeToCartPage() {
+      this.$router.push('/cart')
     },
   },
 }
