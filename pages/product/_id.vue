@@ -24,11 +24,19 @@ export default {
     const response = await fetchProductById(params.id)
     return { product: response.data }
   },
-
+  head: {
+    title: 'Shopping Item Detail',
+    meta: [
+      {
+        hid: 'decription',
+        name: 'decription',
+        content: '이 상품은 ~~ 입니다/',
+      },
+    ],
+  },
   methods: {
     async addToCart() {
-      const resp = await createCartItem(this.product)
-      console.log(resp)
+      await createCartItem(this.product)
       // this.$store.commit('addItemToCart', this.product)
       this.$store.commit('addCartItem', this.product)
       this.$router.push('/cart')
