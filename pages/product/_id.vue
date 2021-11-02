@@ -24,15 +24,17 @@ export default {
     const response = await fetchProductById(params.id)
     return { product: response.data }
   },
-  head: {
-    title: 'Shopping Item Detail',
-    meta: [
-      {
-        hid: 'decription',
-        name: 'decription',
-        content: '이 상품은 ~~ 입니다/',
-      },
-    ],
+  head() {
+    return {
+      title: `Shopping Item Detail - ${this.product.name}`,
+      meta: [
+        {
+          hid: 'decription',
+          name: 'decription',
+          content: `이 상품은 ${this.product.name} 입니다.`,
+        },
+      ],
+    }
   },
   methods: {
     async addToCart() {
